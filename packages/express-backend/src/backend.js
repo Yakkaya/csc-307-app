@@ -17,7 +17,7 @@ const users = {
       {
         id: "ppp222",
         name: "Mac",
-        job: "Professor"
+        job: "Bouncer"
       },
       {
         id: "yat999",
@@ -78,6 +78,17 @@ app.get("/users/:id", (req, res) => {
   } else {
     res.send(result);
   }
+});
+
+app.get('/users', (req, res) => {
+  const { name, job } = req.query;
+
+  let filteredUsers = users;
+  if (name && job) {
+      filteredUsers = users.filter(user => user.name === name && user.job === job);
+  }
+
+  res.json(filteredUsers);
 });
 
 app.post("/users", (req, res) => {
