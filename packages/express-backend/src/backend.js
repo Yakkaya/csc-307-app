@@ -46,6 +46,13 @@ const addUser = (user) => {
   return user;
 };
 
+const deleteUser = (user) => {
+  const userId = user.id;
+  const userIndex = users["users_list"].findIndex(user => user.id === userId);
+  users["users_list"].splice(userIndex, 1);
+  return user;
+}
+
 app.use(express.json());  
 
 app.get("/", (req, res) => {
@@ -77,7 +84,13 @@ app.post("/users", (req, res) => {
     const userToAdd = req.body;
     addUser(userToAdd);
     res.send();
-});  
+}); 
+
+app.delete("/users", (req, res) => {
+    const userToDelete = req.body;
+    deleteUser(userToDelete);
+    res.send();
+})
 
 app.listen(port, () => {
   console.log(
