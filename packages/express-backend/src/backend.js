@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
@@ -52,6 +53,8 @@ const deleteUser = (user) => {
   users["users_list"].splice(userIndex, 1);
   return user;
 }
+
+app.use(cors());
 
 app.use(express.json());  
 
