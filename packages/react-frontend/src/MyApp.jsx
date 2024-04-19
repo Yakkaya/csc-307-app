@@ -6,15 +6,43 @@ function MyApp() {
   const [characters, setCharacters] = useState([]);
 
   function removeOneCharacter(index) {
+    const character = characters[index];
+    if(character && character.id) {
+      fetch(`http://localhost:8000/users/${character.id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+          if (response.ok) {
+            const updated = characters.filter((character, i) => {
+              return i !== index;
+            });
+            setCharacters(updated);
+          } else if (response.status === 404) {
+              console.error('User not found, unable to delete');
+          } else {
+              throw new Error('Failed to delete the user');
+          }
+        })
+        .catch(error => {
+          console.error('Error deleting user:', error);
+        });
+    } else {
+      console.error('User data is incomplete, cannot delete. ')
+    }
+  }
+  
+  /**function removeOneCharacter(index) {
     const updated = characters.filter((character, i) => {
       return i !== index;
     });
     setCharacters(updated);
-  }
+  }**/
 
   function updateList(person) { 
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
+      .then((updatedPerson) => {
+        setCharacters(prevCharacters => [...characters, updatedPerson])
+      })
       .catch((error) => {
         console.log(error);
       })
@@ -33,14 +61,19 @@ function MyApp() {
   }, [] );
 
   function postUser(person) {
-    const promise = fetch("Http://localhost:8000/users", {
+    const promise = fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(person),
-    });
-
+    }).then(response => {
+      if (response.ok && response.status === 201) {
+          return response.json();
+      } else {
+          throw new Error('Something went wrong');
+      }
+  });
     return promise;
   }
 

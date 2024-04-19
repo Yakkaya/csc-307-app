@@ -42,6 +42,11 @@ const findUserByName = (name) => {
 const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
 
+const generateId = (user) => {
+  const id = Math.random().toString(36).slice(2).substring(0, 6);
+  user.id = id;
+}
+
 const addUser = (user) => {
   users["users_list"].push(user);
   return user;
@@ -50,8 +55,11 @@ const addUser = (user) => {
 const deleteUser = (user) => {
   const userId = user.id;
   const userIndex = users["users_list"].findIndex(user => user.id === userId);
-  users["users_list"].splice(userIndex, 1);
-  return user;
+  if (userIndex !== -1) {
+      users["users_list"].splice(userIndex, 1);
+      return true;
+  }
+  return false;
 }
 
 app.use(cors());
@@ -96,15 +104,26 @@ app.get('/users', (req, res) => {
 
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
+    if (userToAdd === undefined) {
+      res.status(404).send("Could not add user. ")
+    } else {
+      generateId(userToAdd);
+      addUser(userToAdd);
+      res.status(201).send(userToAdd);
+    }
+    
 }); 
 
-app.delete("/users", (req, res) => {
-    const userToDelete = req.body;
-    deleteUser(userToDelete);
-    res.send();
-})
+app.delete("/users/:id", (req, res) => {
+    const userId = req.params.id;
+    const user = findUserById(userId);
+    if (!user) {
+      res.status(404).send({ message: 'User not found' });
+  } else {
+      deleteUser(user);
+      res.status(204).send();
+  }
+});
 
 app.listen(port, () => {
   console.log(
